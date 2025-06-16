@@ -1,0 +1,121 @@
+{
+  "events": [
+    {
+      "id": "the-great-awakening",
+      "name": "The Great Awakening",
+      "date": 0,
+      "type": "historical",
+      "description": "When the cosmos first lit the sky and the stars sing"
+    }
+  ],
+  "npcs": [
+    {
+      "id": "illmindel",
+      "name": "Illmindel",
+      "race": "elf-human",
+      "origin": "kiresth",
+      "description": "Aliases: Protector of Surtr"
+    },
+    {
+      "id": "zoral",
+      "name": "zoral",
+      "race": "elf",
+      "origin": "kiresth, illmindel",
+      "description": "friend of illmindel, also kinda hates illmindel"
+    }
+  ],
+  "locations": [
+    {
+      "id": "mathura",
+      "name": "Mathura",
+      "parent": "NULL",
+      "path": [
+        ""
+      ],
+      "type": "planet",
+      "description": "Mathura is a young world, where lands are dominated by large megafauna, mysterious and fascinating creatures, and harsh climates. The road to civilization was riddled with hardship. The devastating climate and dangerous monsters crushed any hopes of extensive exploration for hundreds of years. A history of struggle was used to justify wars over natural resources and land. Slowly out of this turmoil, tribes became villages, and villages became cities, and now from cities emerge empires. Now is the age where one’s ambitions can look beyond their shores, where power and politics lead to inevitable conflict. The single most important event of the millennia was when the explorer Naeth Vaz and his crew, from the Northern Continent of Kiresth, departing from Baraq Peninsula, landed on the Southern Continent Kalith, on the peninsula of Shiraq. That was more than 400 years finally reuniting the two ancient lands. Now the peninsulas of Baraq and Shiraq are forever tied together, sharing a future even though they are spread out by thousands of miles. Trade, interconnectivity, and exploration: Food and spices, arts and music, books and religion are all exported and imported, as well as technological innovations and precious resources that can only be found in their specific and unique niches. Some people see this as an opportunity to explore the world, to leave the small nook of the world where they come from and see the beauty of nature, if they are so lucky to not be taken by its horrors. Others are weary of meeting foreigners, afraid that wars may break out on account of resources, or they are simply afraid of the unknown and different. Some just think that their precious civilization will be eroded away due to the influx of traders and immigrants. Political tensions brew beneath the prosperity of trade, which is bound to fade away sooner than later.",
+      "children": [
+        "kiresth",
+        "kalith"
+      ]
+    },
+    {
+      "id": "kiresth",
+      "name": "Kiresth",
+      "parent": "mathura",
+      "path": [
+        "mathura"
+      ],
+      "type": "continent",
+      "children": [
+        "isortar"
+      ],
+      "description": "Kiresth is the northern continent, where the elves, ents, tabaxi, orcs, and other such races dwell. The most populated geographical area is the peninsula of Baraq, the home of the wood elves, as well as other races. -Baraq is a heavily forested peninsula with an abundance of natural wood and fruits. The people of Baraq live with nature, instead of trying to conquer it. Buildings are carved into the trees, not from the timber. The religion is based around the seasons. It is one part of the twin civilizations of Baraq and Shiraq. They are the landing zone for most if not all trade imports coming into the northern continent, allowing them to dominate the world stage for the previous couple hundred years. An economic powerhouse, its people live within a large forest, mostly unaffected by the turmoil of the outside world. Ironically, even though they thrive on interconnectivity, Baraq keeps its borders well regulated.Travelers, merchants, immigrants, and tourists are only allowed to stay within the cities outside of its forest. The only exception to this may be the people from Shiraq, but even so, the original nobles of Baraq, who now refer to themselves as the High Elves, and look down upon their sister forest and deny them from entering the different hearts of the forest."
+    },
+    {
+      "id": "isortar",
+      "name": "Isortar, Home of the High-Elves",
+      "parent": "baraq",
+      "path": [
+        "mathura",
+        "kiresth",
+        "baraq"
+      ],
+      "type": "city",
+      "children": [],
+      "description": "The capital of Baraq, it is where the Queen of Leaves resides. "
+    },
+    {
+      "id": "safil",
+      "itemType": "location",
+      "name": "Safil",
+      "type": "region",
+      "parent": "kiresth",
+      "path": []
+    },
+    {
+      "id": "idara",
+      "itemType": "location",
+      "name": "Idara",
+      "type": "country",
+      "parent": "safil",
+      "path": [],
+      "information": {
+        "description": "The largest of all the moons, the soft gray light of Idara is ever present and  encompasses all. These people’s chosen companions are Elephants. They emphasize a strong moral  standing, revolving around wisdom and virtuosity, but their culture is largely dictated by tradition- derived from their understanding of the Earth. They follow a system of open debate and conversation where anyone is allowed to voice their thoughts, but their attention to moral detail often causes a lack of responsive action. Traditionally Idara has always kept strong ties with each other tribe, acting mostly as neutral watchers when their cousins squabble. With a lack of militaristic emphasis in their culture the need for peace has taught them to become natural arbitrators and ambassadors. When times of great need call for collective action, all the tribes congregate at Idara’s great amphithere. Idara’s society is known for their philosophers and strong focus on horticulture. \n\n As Idara is the oldest child of the Cosmos, they value themselves as ones who keep balance- taking slow but firm steps toward progress. They believe that Idara was the one who seeded Safil with life, tasking her gentle giants, the elephants, to watch over the growth of flora and fauna. In their ceremonies, rivers of mead and wine are poured out and heaps of fruit are offered to Idara.  The pursuit of balance also allows Idaran’s to see the necessities of the other gods, with each prayer to Idara, they also hymn the prayers of Dubey, Malga, and Chadri alike. \n\n Horticulturists, botanists, and food scientists are the heart of Idaran society, with doctors, apothecaries, and herbalists able to put the innovative plants to good use. Their tribe is located geographically in the center of all the other tribes, sharing their environments and ecologies. Because of the natural abundance of many different terrains, they have diverse agricultural practices. They are also known to often work with the Lake Tritons of Lake Tahr, whom they often trade with through the River Tahrnam. But the people of Idara are not just people of the earth, but also of the sky. They know not just how the seasons and weather patterns affect the life cycle of plants, but even how the delicate difference of the light patterns of different stars influence the mortal realm.",
+        "religion": "Seers in Idaran are trained in a multitude of different manners. The most common method is for a seer to cultivate their own garden, the most common plant used is nightshade, a plant that is extremely sensitive to the difference in light it receives from the different moons and different stars. Factors such as the rate of growth of this plant, the direction it faces, how it blooms, how it glitters, how the flowers are arranged, are all only some of the factors these gardeners consider when trying to determine the future. The larger the garden a Gardener takes care of, the more powerful they tend to be. Some take special concoctions of plant juice to help them enter a trance to listen to the will of the universe. Some spend an enormous amount of time trying to breed new varieties of nightshade to grasp better understanding. Some simply lie under a tree and understand the tree’s breath. The possibilities between a seer and their connection to Idara are endless.",
+        "politics": "Idara's government is built around an assembly of voters who are picked in a random selection, only adults are permitted to be selected, who vote against the laws and proposals given to them by the Small Council, usually on treaties and taxes. The Small Council is made of 11 members of the Idaran Society, elected by the assembly if a position opens due to death, if a member steps down, or in extreme circumstances when a member is excommunicated. These members are made up of scientists, seers, military members, and philosophers of extreme importance and influence. The ceremony of voting consists of the assemblyman pouring water into respective plants to indicate support or not.",
+        "diet": "Their diet is made of many exotic fruits- it is common for botanists to develop fruits of their own with distinct textures, smells, and flavors. Meat is of course eaten, but rather than the main attraction of a dish, it is usually prepared in small quantities and as a complement to the fruit. It is not uncommon for people to lead mainly vegetarian lives. The obsession with unique flavors has also spilled into drink- there are many families who have developed their own unique meads, beers, and wines, with fermentation becoming a prestigious skill. A developed palette for alcohol often is a must-have skill in high society. There have been many conspiracies, plots, and rumors of espionage between families stealing each other's secret fermentation techniques. Even taverns are known for being loyal to a specific families’ mead or wine, rejecting the rest.",
+        "botany": "Idara’s jewel is known as the floating gardens. Large mounds of spherical dirt float and hover in the sky with green, blue, and red leaves sprouting from them. They are tied together to make abstract art works, and their movements create majestic and mystical light shows. The leaves act as prisms and colored mirrors, turning the ground into a mosaic. Some mounds are small enough to be held by hand, while others are as large as orcs with small ecosystems of birds, insects, and many different species of plants inhabiting their own personal island. These larger ones somehow also seem to carry their own tiny clouds, replenishing the mounds with water as needed. For the others, the skilled botanists have developed small floating streams that carve their way through this garden in a set path, and the caretakers make sure to guide the mounds to it. Floating from knee level to well above 15 feet or higher, it can become a maze to navigate through them without disturbing these delicate islands. Ever since the influential herbalist Igafy Bous stated that the garden is the soul of one’s house, every great family seeks to have a floating garden at their house. \n\n Other distinct fields of studies are important too. The Caverns of Forin are kept for bioluminescent wonders, of living stalactite and plants that grow in the shadows rather than the sunlight. With the help of the Lake Tritons, underwater plant ecology is no longer a mystery to Idaran’s, expert in how corals, algae, reefs, urchins, and underwater plants develop. Potions allowing one to extend their breath underwater have been developed and gels harvested from seaweed that can cure burns and act as a fireproof layer have been found. Perfumes and color dyes are another large export of Idara, mainly trading to Chadri and fueling Chadri’s fashion industry. Though this sector doesn’t carry its own prestige, Cahdri’s steady and predictive need of Idara’s fuels their economy quite well. Historically, desert flora has been the hardest to study, so people from Malga also tend to carry quite a strong economic relationship, as their supplies are in high demand and short supply.\n\n The Sect of Small Things is an important player in Idaran society, one can only be born or married into this sect. Quite separate, these people specialize in how insects and flora behave with each other. How do bees, flies, and even birds interact in the fertilization of plants? How do the parasites that live within each tree force it to grow stronger bark? Their interesting and often disturbing practices have led to discrimination, but their importance in harvesting resources such as honey and silk are important in Idaran society. Doctors coming from this sect also use some unorthodox methods of employing parasites, insects, and leeches in their practices. \n\n Fields such as poisons are restricted. Places such as The Idolian University houses special zones where they can create specific environments to cultivate dangerous plants and develop poisons in. Some even whisper that flora originating from the underdark, nightfell, and even the fey-wield are kept behind lock and key in unknown facilities. \n\n An unfortunate side effect of the people of Idara being so eager to experiment is that throughout their history, they have accidentally created violent pathogens and  dangerous invasive species. Though strict restrictions have started to take place, the Strife of Winsro and Bane of Clande were two of the most dangerous diseases created. The Strife of Winsro decimated almost thirty percent of the Idaran population. Cut off from the rest of the tribes and world, they had to burn major cities to keep the strife in check. The Bane of Clande was born out of the creation of Clanden, a member of the Sect of Small Things. He was once hailed as their greatest scientist who was responsible for creating crude artificial limbs, but his research went too far to create and he accidentally created a dangerous parasite that developed autonomy. Dubey and Malga rode to the help of Idara, who had to wage war against its own people.",
+        "inventions": "Soil of Abundant growth, Elven bread, Artificial limbs"
+      }
+    },
+    {
+      "id": "dubey",
+      "itemType": "location",
+      "name": "Dubey, Land of the Hunt",
+      "type": "country",
+      "parent": "safil",
+      "path": [],
+      "information": {
+        "description": "The older middle child, the golden-red of Dubey reflects on this tribe as both social and political tend to lean toward fast decisive action, not wanting to wait to miss crucial opportunities. As such this tribe is led by an elder who is elected, determined by their will power and experience. This tribe's chosen animal companion are the Thunder-Lions, vicious but fair, and never unheard. Heavily nomadic and having extreme loyalty, they produce the greatest warriors. Their culture revolves around great physical feats, but also physical expression such as dancing and singing. ",
+        "religion": "The essence of the red moon, Dubey is the second oldest of the 4 young moons. A powerful, willful leader, he was the most prideful and brash, but also the most honest, reliable and just. They say that he was tending his farm one day, and found the great elephants of Idara grazing on his crops. Angered, he slew the herd. In response, Idara cursed him to never be able to tend land again, for famine to reach any crop he planted and his feet to poison the fertile land. Learning from the thunder lions on how to survive, he now partakes in the eternal hunt, and the tribe of Dubey follows in his footsteps.",
+        "ritual-of-the-hunt": "Young Warriors are tasked to hunt by the village elder, as a test of skill and coming of age ceremony. This hunt may take them as long as needed, but only once completed are they respected full members of the tribe.",
+        "prophecy-of-fire": "Unlike the other tribes who gaze up at the stars for their future, they believe that fate lies in the fire, using the bones of animals, they put it in a flame, seeing their future from both the dance within the flames as well as how the animal bones crack and burn. The stronger the bond the seer had with the hunt and their kill, the stronger their visions can be.",
+        "ancestory": "The people of Dubey loved that the Yotten that first roamed the land, demi gods fathered by Dubey himself, carrying Dubey’s tradition of the hunt. Their greatest prize and trophy was the Tarasque. Though the Tarasque are still rumored to roam this land, the Yotten haven’t been seen in many millennia. The Tribes of Safil and The Aenid Empire descend from the Yottens, though the tribes don’t know what happened to the Aenid Empire."
+      }
+    },
+    {
+      "id": "malga",
+      "itemType": "location",
+      "name": "Malga",
+      "type": "country",
+      "parent": "safil",
+      "path": [],
+      "information": {
+        "description": "The green light of Malga shines upon these people, though the smallest celestial body, they are never overlooked. Nomadic and stationary, this culture is dominated by balance, not right and wrong, but by order and chaos. They tend to their land, and once Malga calls, they are ready to move again. Their chosen animal companions are the Nagas, and never is any resource wasted. Experts in survival, hunting, tracking, and using the land to their benefit, they brew potent potions and decorate the land with sculptures and landmarks. \n\n Unlike the rest of the tribes, Malga society is very individualistic, unbound with the contents of this world, they don’t care about material wealth, only freedom and expression. Flying Nagas are their companions and Magalions choose them as babies. In their crib, a Naga egg is placed, allowing for the baby to heat the Naga egg, allowing it to mature and finally come out. The child of course forever imprints on the Naga as well. This relationship does not transcend just symbiosis because both the Malagion and the Naga see themselves as part of each other. Losing one's Naga is akin to losing a limb for these people.\n\n These caravans of pilgrims ride across the land following the stars. The primary responsibility of Malga’s seers is to read the movement of Harmattan - the great Red Sandstorm. Harmattan has been raging for hundreds of years, certainly longer than any living member of the  Malga has been alive. Harmattan may never visit the same place in decades, or it may stay there for decades. Its erratic path catches even the most experienced seers off guard, and its winds rip away crops and houses from the ground with ease. This constant cycle of destruction has led to Malaga being the poorest of all the tribes- building permanent settlements is but a gamble when it can be ripped away so easily. The sands of the desert are littered with buried and desecrated cities, naturally the desert is teeming with raiders and scavengers looking for hidden treasure. ",
+        "settlements": "However, over the vast sea of cracked soil and sand, there are two permanent residents- the City of Kailos in the Great Wound, and the City of Ramonasa on the Ramo Plateau. The Great Wound is a canyon where the city of Kailos can take shelter within its high walls, casting an ever present shadow on the people. At the base, the water has been collected over generations, creating a natural reservoir, though there is never enough to go around- he who controls the water controls Kailos.  Over the centuries a city has been carved deep into the walls, and construction is always ongoing- but whispers of the dangers of the deep are ever present. The Ramo Plateau is almost the opposite - a piece of flat land that obtrusively sticks out in the desert, it is high enough that Hammaton often is redirected when hitting the cliff faces. The sheer onslaught of sandstorm has also caused the cliff sides to become extremely smooth and climbing up is virtually impossible- with the only real way through flying up via a Winged Snake or with the various balloons that glide the less fortunate up and down. The cliff faces have been carved into for generations, as the sun moves across the sky, the story of Malga unfolds for any visitor traveling into the city. Unfortunately, the Ramo Plateau is mostly solid rock, unsuitable for large scale agriculture capable of sustaining even a medium sized city- most of the wealth that citizens are able to attain is used to buy precious Idaran soil to fertilize the plateau. \n\n The people who are not lucky enough to be allowed to live in the Kailos or Ramonasa, the vast majority, tend to travel in large caravans on never-ending pilgrimages. They are always looking for where the rain clouds will next rise or where temporary rivers from the Eastern Mountain Range will be made available. In such a temporary life, beauty and expression is the only thing a Malgion truly owns. Some fly, while some slither, and some walk, but everywhere they go, they leave behind large geoglyphs in the ground that can really only be appreciated from above. As the gods left their marks on the sky with constellations, Magalions leave their stories on the material plane. Barren trees are covered in wind chimes that are promised to be lost when the wind forgoes them. Impossibly tall and precisely balanced rock towers are erected, only to inevitably fall. ",
+        "culture": "Nagas are some of the most important parts of Malgion culture. The scales of large nagas are used to create armor, their fangs into blades, and molten skin for insulation. Drinking diluted poison is a favorite coming of age dare between youngsters. Diluted poison is also popular amongst hunters, scavengers, and raiders alike- numbing pain sensors and hardening the skin against the harsh weather are only some of its addictive effects. Constant consumers need more and more potent poison, with an eventual light blue complexing overtaking their natural skin color, starting first from their throat and then spreading over the body. But poison not only affects the body- but also the mind and spirit. \n\n At the most extreme are the Drjon- who drink almost pure poison from nagas, great scorpions, or anything else they can get their hands on. Drjon are characterized by their deep blue, hard, dry, scale-like skin. Unable to feel anything, their minds are broken and pleasure only comes from raiding caravans and temporary settlements alike. \n\n With vast open land and a constant animal companion, naturally racing has become a popular pastime of these people. Endless salt flats allowing for races on foot, horse, camel, or Nagas, and maximum speed. Sand pits on the other hand make great places for both wrestling- the constant resistance of the sand molds the best grapplers in Safil. On the other hand, intricate dances have been invented where the flow of bodies gently trace out intricate patterns. Records are kept with strings - a series of knots or beads represent words and wizards are draped in a tapestry of their spells. Along with wrestling, archery is the dominant art form. Poisons are of course used on the tips of arrows making even a small nick fatal, but the most dangerous archers are the ones who have mastered fighting when flying on their Nagas. Some types of nagas also carry feathers on their wings and an arrow carrying a Naga feather is said to be as silent and deadly as the night. \n\nChadri tends to be a great business partner for the people of Malga- their endless fine sand is always useful for Chadri’s intricate glass ornaments. The Chadri elite despise their reliance on their inferior cousins. Malgion, specifically Ramonasons, are also very dependent on Idara for their rich soil. However Idara is always grateful as in turn they receive exotic plant specimens to experiment on. Dubey is simply a respected cousin, with small but insignificant interaction."
+      }
+    }
+  ]
+}
