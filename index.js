@@ -1,21 +1,40 @@
 const express = require('express');
-//const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
-
 require('dotenv').config();
+const cors = require('cors')
+
+
+const locationRouter = require('./routes/location.router')
+const npcRouter = require('./routes/npc.router')
 
 const app = express();
-app.use(bodyParser.json());
-app.listen(process.env.PORT, () => {
-    console.log(`Server Listening on Port ${process.env.PORT}`)
-})
 
-// mongoose.connect(process.env.MONGODB_URI, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-// })
+app.use(cors ({
+  origin:  '*' , //'http://localhost:3000', // your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true, // if you're using cookies or auth headers
+}));
+
+app.use(bodyParser.json());
+app.use('/locations/', locationRouter);
+app.use('/npcs/', npcRouter);
+
+mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+}).then(() => {
+    console.log('Server Connceted');
+        
+    app.listen(process.env.PORT, () => {
+        console.log(`Server Listening on Port ${process.env.PORT}`)
+    });
+})
+.catch((err) => {
+    console.log('Unable to connect to server', err)
+})
 
 app.post('/insert-info', async (req, res) => {
     console.log('in here');
@@ -25,7 +44,7 @@ app.post('/insert-info', async (req, res) => {
     //     return res.status(400).send("Error: Inserting information is invalid")
     // }
 
-    dataFile = path.resolve(__dirname, './data/data.json');
+    const dataFile = path.resolve(__dirname, './data/data.json');
     console.log(`Data path; ${dataFile}`)
 
     //the information we are going to insert

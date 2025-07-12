@@ -1,12 +1,36 @@
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
+const { NpcEvents }  = require('./npcTimelineEvent.model')
 
-const locationShema = new mongoose.Schema({
-    locationDate: Date,
-    locationId: String,
-    locationName: String,
-    locationDescription: String, 
-    locationType: String,
-    locationParents: [String]
-})
+const npcSchema = new mongoose.Schema({
+    slug: {
+        type: String,
+        unique: true,
+        required: true,
+        lowercase: true,
+        trim: true
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    description: String, 
+    race: String,
+    dateOfBirth: Date,
+    dateOfDeath: Date,
+    related: {
+        type: [{type: mongoose.Schema.Types.ObjectId}],
+        default: []
+    },
+    information: {
+        type: mongoose.Schema.Types.Mixed,
+        default: {}
+    }, 
+    events: {
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: "NpcEvents"}],
+        default: []  
+    }
+}, 
+    { timestamps: true }
+)
 
-mongoose.exports = mongoose.model('Location', locationSchema) 
+module.exports = mongoose.model('NPC', npcSchema)
