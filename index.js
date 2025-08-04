@@ -6,14 +6,14 @@ const path = require('path');
 require('dotenv').config();
 const cors = require('cors')
 
-
 const locationRouter = require('./routes/location.router')
 const npcRouter = require('./routes/npc.router')
+const adminRouter = require('./routes/admin.router')
 
 const app = express();
 
 app.use(cors ({
-  origin:  '*' , //'http://localhost:3000', // your frontend origin
+  origin:  'http://localhost:3000', // your frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // if you're using cookies or auth headers
 }));
@@ -21,6 +21,7 @@ app.use(cors ({
 app.use(bodyParser.json());
 app.use('/locations/', locationRouter);
 app.use('/npcs/', npcRouter);
+app.use('/login', adminRouter);
 
 mongoose.connect(process.env.MONGODB_URI, {
         useNewUrlParser: true,
@@ -36,6 +37,7 @@ mongoose.connect(process.env.MONGODB_URI, {
     console.log('Unable to connect to server', err)
 })
 
+//insert any info
 app.post('/insert-info', async (req, res) => {
     console.log('in here');
 
