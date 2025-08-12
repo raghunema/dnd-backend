@@ -15,6 +15,7 @@ const locationSchema = new mongoose.Schema({
     parentName: String,
     parentPath: [{type: mongoose.Schema.Types.ObjectId}],
     children: [{type: mongoose.Schema.Types.ObjectId}],
+    events: [{type: mongoose.Schema.Types.ObjectId}],
     information: {
         type: mongoose.Schema.Types.Mixed,
         default: {}

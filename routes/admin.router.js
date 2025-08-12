@@ -35,6 +35,7 @@ adminRouter.post('/newUser', async (req, res) => {
 
 adminRouter.post('/', async (req, res) => {
     const { username, password } = req.body;
+    console.log("Logging in")
 
     const user = await User.findOne({ username });
 
@@ -53,6 +54,14 @@ adminRouter.post('/', async (req, res) => {
         sameSite: 'strict',
         maxAge: 60 * 60 * 1000 * 24 // 1 Day
     });
+
+    res.cookie('userInfo', JSON.stringify({
+        "user": user.username,
+        "userDisplayName": user.name,
+        "privileges": user.privileges
+    }), {
+        maxAge: 60 * 60 * 1000 * 24
+    })
 
     res.status(200).json({ success: true });
 });

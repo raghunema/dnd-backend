@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { NpcEvents }  = require('./npcTimelineEvent.model')
+const { Event }  = require('./event.model')
 
 const npcSchema = new mongoose.Schema({
     slug: {
@@ -26,7 +26,7 @@ const npcSchema = new mongoose.Schema({
         default: {}
     }, 
     events: {
-        type: [{type: mongoose.Schema.Types.ObjectId, ref: "NpcEvents"}],
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: "Event"}],
         default: []  
     }
 }, 

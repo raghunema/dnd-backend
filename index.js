@@ -9,6 +9,7 @@ const cors = require('cors')
 const locationRouter = require('./routes/location.router')
 const npcRouter = require('./routes/npc.router')
 const adminRouter = require('./routes/admin.router')
+const eventRouter = require('./routes/event.router')
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cors ({
 app.use(bodyParser.json());
 app.use('/locations/', locationRouter);
 app.use('/npcs/', npcRouter);
+app.use('/events', eventRouter)
 app.use('/login', adminRouter);
 
 mongoose.connect(process.env.MONGODB_URI, {
