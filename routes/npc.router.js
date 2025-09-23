@@ -7,14 +7,23 @@ const npcRouter = express.Router();
 const NPC = require('../models/npc.model');
 const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
-const npcModel = require('../models/npc.model');
+
 
 //make a new npc
-npcRouter.post('/npc', async (req, res) => {
+npcRouter.post('/', async (req, res) => {
     console.log("Trying to save new npc")
     try {
-        const npc = new NPC(req.body.npc)
+        const npc = new NPC(req.body)
+        console.log(npc)
+
         await npc.save();
+
+        if (npc.events && npc.events.length > 0) {
+            await Event.updateMany(
+                { _id: { $in: npc.events } }, //finds all the events in npc.events
+                { $addToSet: { npcs: npc._id} } //updates them via set addition to avoid dupes
+            )
+        }
     
         console.log(`NPC saved successfully`)
         res.status(201).send(npc)
@@ -23,6 +32,57 @@ npcRouter.post('/npc', async (req, res) => {
         res.status(500).send(`Error saving location: ${err.message}`)
     }
 })
+
+npcRouter.post('/update', async (req, res) => {
+
+    try {
+        const npcId = req.body._id
+        const npcBody = req.body
+        const npcNewEvents = req.body.events || []
+
+        const oldNpc = await NPC.findById(npcId)
+        
+        if (!oldNpc) {
+            return res.status(404).send(`NPC with id ${npcId} not found.`);
+        }
+
+        //delete npcs from these events
+        const eventsToDeleteFrom = oldNpc.events.filter(
+            oldEvent => !npcNewEvents.includes(oldEvent.toString())
+        );
+
+        //add npc to an event if its not in the event
+        const eventsToAddTo = npcNewEvents.filter(
+            newEvent => !oldNpc.events.map(e => e.toString()).includes(newEvent.toString())
+        );
+
+        //update delete from events
+        if (eventsToDeleteFrom.length > 0 ) {
+            await Event.updateMany( 
+                { _id: { $in: eventsToDeleteFrom} },
+                { $pull: {npcs: npcId } }
+            )
+        }
+
+        //update add to events
+        if (eventsToAddTo.length > 0 ) {
+            await Event.updateMany( 
+                { _id: { $in: eventsToAddTo} },
+                { $addToSet: {npcs: npcId } }
+            )
+        }
+        
+        const npc = await NPC.findByIdAndUpdate(npcId, npcBody)
+
+        console.log(`Updated NPC: ${npc.name}`);
+        res.status(200).send(npc)
+    } catch (err) {
+        console.log(`Error updating ${req.body.slug}`)
+        res.status(501).send(`Error getting an NPC: ${err}`)
+    }
+
+})
+
 
 npcRouter.post('/updateNpc/:npcSlug', async (req, res) => {
     const { npcSlug } = req.params;
@@ -63,6 +123,21 @@ npcRouter.get('/all', async (req, res) => {
     }
 })
 
+npcRouter.get('/form', async (req, res) => {
+    console.log("Getting all Npcs")
+    
+    try {
+        const allNpcs = await NPC.find(
+            {},
+            "name slug"
+        )
+        res.status(201).send(allNpcs)
+    } catch (err) {
+        console.log(`Error getting all Npcs`)
+        res.status(500).send(`Error saving location: ${err.message}`)
+    }
+})
+
 //getting npc by slug
 npcRouter.get('/single/:npcSlug', async (req, res) => {
     console.log(`Getting NPC`)
@@ -87,8 +162,8 @@ npcRouter.get('/single/:npcSlug', async (req, res) => {
             response.npcEvents = events
         }
 
-        console.log(response)
-        console.log(`npc found successfully`)
+        //console.log(response)
+        //console.log(`npc found successfully`)
         res.status(201).send(response)
     } catch (err) {
         console.log("Error getting specific npc")
@@ -116,7 +191,6 @@ npcRouter.post('/events', async (req, res) => {
         res.status(501).send(`Error getting an events: ${err}`)
     }
 })
-
 
 //get all events
 // npcRouter.get('/allEvents', async (req, res) => {
@@ -165,21 +239,24 @@ npcRouter.post('/events', async (req, res) => {
 //     }
 // })
 
+
+
 //get npc schema
 npcRouter.get('/schema', async (req, res) => {
     console.log('trying to get schema')
 
     try {
-        const npcJsonSchema = npcModel.schema.jsonSchema()
+        const npcJsonSchema = NPC.schema.jsonSchema()
 
-        delete npcJsonSchema.properties._id;
+        //delete npcJsonSchema.properties._id;
         delete npcJsonSchema.properties.__v;
         delete npcJsonSchema.properties.createdAt;
         delete npcJsonSchema.properties.updatedAt;
-        //delete npcJsonSchema.properties.events;
-        // npcJsonSchema.title = 'NPC'
+       
+        npcJsonSchema.properties.information.type = "object";
+        //npcJsonSchema.properties.information.additionalProperties = true //save this for the future!
 
-        console.log(npcJsonSchema);
+        //console.log(npcJsonSchema);
 
         res.json(npcJsonSchema);
     } catch (err) {

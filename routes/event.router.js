@@ -3,50 +3,29 @@ const Event = require('../models/event.model');
 const Location = require('../models/location.model');
 const NPC = require('../models/npc.model');
 const mongoose = require("mongoose");
+require('mongoose-schema-jsonschema')(mongoose);
 
 const eventRouter = express.Router();
-
-function relateEventNPC (event, npc) {
-    
-    event.npcs.push(npc._id)
-    npc.events.push(event._id)
-
-    return { event, npc }
-}
 
 //new event
 eventRouter.post('/', async (req, res) => {
     console.log("Trying to save new event");
 
     try {
-        const newEvent = await Event.create(req.body.event);
+        const newEvent = await Event.create(req.body);
 
         if (newEvent.location) {
-            const location = await Location.findById(newEvent.location);
-
-            if (location) {
-                if (!location.events) location.events = [];
-
-                if (!location.events.includes(newEvent._id)) {
-                    location.events.push(newEvent._id);
-                    await location.save();
-                }
-            }
+            const location = await Location.findByIdAndUpdate(
+                newEvent.location,
+                { $addToSet: {events: newEvent._id} }
+            );
         }
 
-        if (newEvent.npcs && Array.isArray(newEvent.npcs)) {
-            for (const npcId of newEvent.npcs) {
-                const npc = await NPC.findById(npcId);
-
-                if (npc) {
-                    if (!npc.events) npc.events = [];
-
-                    if (!npc.events.includes(newEvent._id)) {
-                        npc.events.push(newEvent._id);
-                        await npc.save();
-                    } 
-                }
-            }
+        if (newEvent.npcs && newEvent.npcs.length > 0) {
+            await NPC.updateMany(
+            {_id: { $in: newEvent.npcs } },
+            { $addToSet: {events: newEvent._id}}
+            )
         }
 
         console.log("Event saved successfully");
@@ -57,6 +36,69 @@ eventRouter.post('/', async (req, res) => {
         res.status(500).send(`Error saving Event: ${err.message}`);
     }
 });
+
+//update an event
+eventRouter.post('/update', async (req, res) => {
+
+    try {
+        const eventId = req.body._id;
+        const newEvent = req.body;
+        const newEventNpcs = req.body.npcs;
+
+        const oldEvent = await Event.findById(eventId);
+
+        if (!oldEvent) {
+            return res.status(404).send(`Event with id ${oldEvent} not found to update.`);
+        }
+
+        //npcs that have been removed from the event
+        const npcsToDeleteFrom = oldEvent.npcs.filter(
+            oldNpcs => !npcNewEvents.includes(oldNpcs.toString())
+        );
+
+        //npcs to add to
+        const npcsToAddTo = newEvent.npcs.filter(
+            newNpc => !oldEvent.npcs.includes(newNpc.toString())
+        )
+
+        if (npcsToDeleteFrom.length > 0) {
+            await NPC.updateMany(
+                { _id: { $in: npcsToDeleteFrom } },
+                { $pull: { events: eventId } }
+            )
+        }
+
+        await NPC.updateMany(
+            { _id: { $in: newEvent.npcs } },
+            { $addToSet: { events: eventId } }
+        )
+
+        const event = await Event.findByIdAndUpdate(eventId, newEvent)
+
+        console.log(`Updated Event: ${event.name}`);
+        res.status(200).send(event)
+    } catch (err) {
+        console.log(`Error updating ${req.body.slug}`)
+        res.status(501).send(`Error updating event: ${err}`)
+    }
+
+})
+
+//get a single event
+eventRouter.get('/single/:eventSlug', async (req, res) => {
+    try {
+        const { eventSlug } = req.params;
+
+        const event = await Event.findOne({
+            slug: eventSlug
+        })
+
+        res.status(201).send(event)
+    } catch (err) {
+        console.log("Error getting specific event")
+        res.status(501).send(`Error getting an event: ${err}`)
+    }
+})
 
 //get all events
 eventRouter.get('/', async (req, res) => {
@@ -144,6 +186,10 @@ eventRouter.post('/filtered', async (req, res) => {
             }
         }
 
+        if (filters._id) {
+            query._id = filters._id
+        }
+
         // Filter by slug
         if (filters.slug) {
             query.slug = filters.slug;
@@ -203,6 +249,58 @@ eventRouter.post('/:npcSlug', async (req, res) => {
     }
 })
 
+//event schema
+eventRouter.get('/schema', async (req, res) => {
+    console.log('trying to get event schema')
+    
+    try {
+        const eventJsonSchema = Event.schema.jsonSchema()
+    
+        //delete eventJsonSchema.properties._id;
+        delete eventJsonSchema.properties.__v;
+        delete eventJsonSchema.properties.updatedAt;
+        delete eventJsonSchema.properties.createdAt;
+    
+        //console.log(eventJsonSchema);
+        res.json(eventJsonSchema);
 
+    } catch (err) {
+        res.status(500).send(err)
+    }
+})
+
+//get only id, slug, and name information to pre-pop form
+eventRouter.get('/form', async (req, res) => {
+    try {
+        const allEvents = await Event.find(
+           {},
+           "name slug"
+        )
+        res.status(201).send(allEvents)
+    } catch (err) {
+        console.log(`Error getting all Events`)
+        res.status(500).send(`Error getting all events: ${err.message}`)
+    }
+})
+
+eventRouter.post('/setLocation/:eventSlug', async (req, res) => {
+    try {
+        const { eventSlug } = req.params;
+        const { location } = req.body.event;
+
+        const event = await Event.findOne({
+            slug: eventSlug
+        })
+
+        event.location = location;
+        await event.save();
+
+        console.log(`Added location to event: ${event.name}`);
+        res.status(200).send(event)
+    } catch (err) {
+        console.log(`Error updating event`)
+        res.status(501).send(`Error getting an events: ${err}`)
+    }
+})
 
 module.exports = eventRouter;
