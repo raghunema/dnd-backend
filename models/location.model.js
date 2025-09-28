@@ -14,8 +14,14 @@ const locationSchema = new mongoose.Schema({
     },
     parentName: String,
     parentPath: [{type: mongoose.Schema.Types.ObjectId}],
-    children: [{type: mongoose.Schema.Types.ObjectId}],
-    events: [{type: mongoose.Schema.Types.ObjectId}],
+    children: {
+        type: [{type: mongoose.Schema.Types.ObjectId}],
+        ref: 'Location'
+    },
+    events:{
+        type: [{type: mongoose.Schema.Types.ObjectId}],
+        ref: 'Event'
+    },
     information: {
         type: mongoose.Schema.Types.Mixed,
         default: {}

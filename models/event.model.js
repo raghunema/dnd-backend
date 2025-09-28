@@ -27,10 +27,12 @@ const eventSchema = new mongoose.Schema({
     },
     npcs: {
         type: [{type: mongoose.Schema.Types.ObjectId}],
+        ref: 'NPC',
         default: []
     },
     location: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'Location',
         default: null
     },
     information: {

@@ -41,7 +41,7 @@ locationRouter.get('/form', async (req, res) => {
     }
 })
 
-locationRouter.get('/single/:locationSlug', async (req, res) => {
+locationRouter.get('/map/:locationSlug', async (req, res) => {
     console.log("getting location information")
 
     try {
@@ -66,16 +66,54 @@ locationRouter.get('/single/:locationSlug', async (req, res) => {
     }
 })
 
+locationRouter.get('/single', async (req, res) => {
+
+    try {
+        const locationId = req.id
+
+        const location = await Location.findById(locationId)
+
+        //console.log(response)
+        console.log(`location found successfully`)
+
+        res.status(201).send(location)
+    } catch (err) {
+        console.log("Error getting location")
+        res.status(501).send(`Error getting an location: ${err}`)
+    }
+})
+
+// locationRouter.get('/map', async (req, res) => {
+
+//     try {
+//         const locationId = req.id
+
+//         const location = await Location.findById(locationId)
+
+//         //console.log(response)
+//         console.log(`location found successfully`)
+
+//         res.status(201).send(location)
+//     } catch (err) {
+//         console.log("Error getting location")
+//         res.status(501).send(`Error getting an location: ${err}`)
+//     }
+// })
+
+
 locationRouter.get('/schema', async (req, res) => {
     console.log('trying to get location schema')
     
     try {
         const locationJsonSchema = Location.schema.jsonSchema()
     
-        delete locationJsonSchema.properties._id;
+        //delete locationJsonSchema.properties._id;
         delete locationJsonSchema.properties.__v;
         delete locationJsonSchema.properties.updatedAt;
         delete locationJsonSchema.properties.createdAt;
+        delete locationJsonSchema.properties.parentId.description;
+        delete locationJsonSchema.properties.parentPath;
+        delete locationJsonSchema.properties.parentName;
     
         //console.log(locationJsonSchema);
         res.json(locationJsonSchema);
