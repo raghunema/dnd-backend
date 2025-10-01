@@ -58,7 +58,7 @@ eventRouter.post('/update', async (req, res) => {
     console.log("trying to update event")
 
     const session = await mongoose.startSession();
-    session.startTransaction();
+    await session.startTransaction();
 
     try {
         const eventId = req.body._id;
@@ -68,8 +68,9 @@ eventRouter.post('/update', async (req, res) => {
         const oldEvent = await Event.findById(eventId).session(session);
 
         if (!oldEvent) {
-            session.abortTransaction()
+            await session.abortTransaction()
             session.endSession()
+
             return res.status(404).send(`Event with id ${oldEvent} not found to update.`);
         }
 
@@ -104,7 +105,7 @@ eventRouter.post('/update', async (req, res) => {
             { $addToSet:  { events: eventId } },
             { session }
         )
-
+       
         const event = await Event.findByIdAndUpdate(eventId, newEvent, { new: true, runValidators: true, session })
 
         await session.commitTransaction();
@@ -119,7 +120,7 @@ eventRouter.post('/update', async (req, res) => {
         console.error(`Error updating event:  ${err.message}`)
         console.log(err.stack)
 
-        res.status(501).send(`Error updating event: ${err}`)
+        res.status(500).send(`Error updating event: ${err}`)
     }
 
 })

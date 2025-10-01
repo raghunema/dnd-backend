@@ -54,7 +54,7 @@ npcRouter.post('/new', async (req, res) => {
 //update via id
 npcRouter.post('/update', async (req, res) => {
     const session = await mongoose.startSession();
-    session.startTransaction();
+    await session.startTransaction();
 
     try {
         const npcId = req.body._id
@@ -64,7 +64,7 @@ npcRouter.post('/update', async (req, res) => {
         const oldNpc = await NPC.findById(npcId).session(session)
         
         if (!oldNpc) {
-            session.abortTransaction();
+            await session.abortTransaction();
             session.endSession();
 
             return res.status(404).send(`NPC with id ${npcId} not found.`);
@@ -92,17 +92,17 @@ npcRouter.post('/update', async (req, res) => {
         
         const npc = await NPC.findByIdAndUpdate(npcId, npcBody, { new: true, runValidators: true, session })
 
-        session.commitTransaction();
+        await session.commitTransaction();
         session.endSession();
 
         console.log(`Updated NPC: ${npc.name}`);
         res.status(200).send(npc)
     } catch (err) {
-        session.abortTransaction();
+        await session.abortTransaction();
         session.endSession();
 
         console.log(`Error updating ${req.body.slug}`)
-        res.status(501).send(`Error getting an NPC: ${err}`)
+        res.status(500).send(`Error getting an NPC: ${err}`)
     }
 
 })
@@ -170,20 +170,20 @@ npcRouter.get('/all', async (req, res) => {
 })
 
 //get all npcs but just for the form
-npcRouter.get('/form', async (req, res) => {
-    console.log("Getting all Npcs")
+// npcRouter.get('/form', async (req, res) => {
+//     console.log("Getting all Npcs")
     
-    try {
-        const allNpcs = await NPC.find(
-            {},
-            "name slug"
-        )
-        res.status(201).send(allNpcs)
-    } catch (err) {
-        console.log(`Error getting all Npcs`)
-        res.status(500).send(`Error saving location: ${err.message}`)
-    }
-})
+//     try {
+//         const allNpcs = await NPC.find(
+//             {},
+//             "name slug"
+//         )
+//         res.status(201).send(allNpcs)
+//     } catch (err) {
+//         console.log(`Error getting all Npcs`)
+//         res.status(500).send(`Error saving location: ${err.message}`)
+//     }
+// })
 
 //getting npc by id
 npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
@@ -196,7 +196,7 @@ npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
 
         let query = NPC.findById(req.params.npcId, projection)
 
-        console.log(req.params.npcId)
+        //console.log(req.params.npcId)
 
         //console.log(expand)
         //handles expand with custom fields
@@ -212,10 +212,10 @@ npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
             });
         }
         
-        console.log('HERE')
+
+        //console.log('HERE')
 
         const npc = await query;
-        //console.log(`got npc base info:`, npc)
 
         //console.log(npc)
         res.status(200).json(npc)

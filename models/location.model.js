@@ -10,7 +10,8 @@ const locationSchema = new mongoose.Schema({
     parentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location',
-        default: null
+        default: null,
+        required: false
     },
     parentName: String,
     parentPath: [{type: mongoose.Schema.Types.ObjectId}],

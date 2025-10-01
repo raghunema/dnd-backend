@@ -33,7 +33,8 @@ const eventSchema = new mongoose.Schema({
     location: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location',
-        default: null
+        default: null,
+        required: false
     },
     information: {
         type: mongoose.Schema.Types.Mixed,

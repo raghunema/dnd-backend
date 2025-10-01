@@ -1,12 +1,16 @@
 const express = require('express');
 const Location = require('../models/location.model');
 const Event = require('../models/event.model');
+const mongoose = require('mongoose'); 
+require('mongoose-schema-jsonschema')(mongoose);
 
 const locationRouter = express.Router();
 
-locationRouter.post('/add-location', async (req, res) => {
+locationRouter.post('/new', async (req, res) => {
     console.log("Trying to save new location")
+
     try {
+        //console.log(req)
         const location = new Location(req.body)
         await location.save();
 
@@ -17,6 +21,64 @@ locationRouter.post('/add-location', async (req, res) => {
         res.status(500).send(`Error saving location: ${err.message}`)
     }
 });
+
+locationRouter.post('/update', async (req, res) => {
+    const session = await mongoose.startSession();
+    await session.startTransaction();
+
+    try {
+
+        const locId = req.body._id
+        const locBody = req.body
+        const locNewEvents = req.body.events || []
+
+        const oldLoc = await Location.findById(locId).session(session)
+
+        if (!oldLoc) {
+            await session.abortTransaction();
+            session.endSession();
+
+            return res.status(404).send(`Location with id ${locId} not found.`);
+        }
+
+        //get all events that aren't included in the new event list
+        const eventsToDeleteFrom = oldLoc.events.filter(
+            oldEvent => !locNewEvents.includes(oldEvent.toString())
+        );
+
+        //delete the location of that event
+        if (eventsToDeleteFrom.length > 0 ) {
+            await Event.updateMany( 
+                { _id: { $in: eventsToDeleteFrom} },
+                { $set: {location: null } },
+                { session }
+            )
+        }
+
+        //update add to events - using set so it avoids dupes
+        await Event.updateMany( 
+            { _id: { $in: locBody.events} },
+            { $set: { location: locId } },
+            { session }
+        )
+
+        const loc = await Location.findByIdAndUpdate(locId, locBody, { new: true, runValidators: true, session })
+        
+        await session.commitTransaction();
+        session.endSession();
+        
+        console.log(`Updated Location: ${loc.name}`);
+        res.status(200).send(loc)
+
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.log(err)
+        console.log(`Error updating ${req.body.slug}`)
+        res.status(500).send(`Error getting an Location: ${err}`)
+    }
+})
 
 locationRouter.get('/', async (req, res) => {
     try {
@@ -66,15 +128,17 @@ locationRouter.get('/map/:locationSlug', async (req, res) => {
     }
 })
 
-locationRouter.get('/single', async (req, res) => {
+locationRouter.get('/single/:locationId', async (req, res) => {
 
     try {
-        const locationId = req.id
+        const { fields, expand, reason } = req.query;
+        const projection = fields ? fields.split(',').join(' ') : '';
 
-        const location = await Location.findById(locationId)
+        const locationId = req.params.locationId
+        //console.log(locationId)
 
-        //console.log(response)
-        console.log(`location found successfully`)
+        const location = await Location.findById(locationId, projection)
+
 
         res.status(201).send(location)
     } catch (err) {
@@ -82,24 +146,6 @@ locationRouter.get('/single', async (req, res) => {
         res.status(501).send(`Error getting an location: ${err}`)
     }
 })
-
-// locationRouter.get('/map', async (req, res) => {
-
-//     try {
-//         const locationId = req.id
-
-//         const location = await Location.findById(locationId)
-
-//         //console.log(response)
-//         console.log(`location found successfully`)
-
-//         res.status(201).send(location)
-//     } catch (err) {
-//         console.log("Error getting location")
-//         res.status(501).send(`Error getting an location: ${err}`)
-//     }
-// })
-
 
 locationRouter.get('/schema', async (req, res) => {
     console.log('trying to get location schema')
@@ -114,6 +160,7 @@ locationRouter.get('/schema', async (req, res) => {
         delete locationJsonSchema.properties.parentId.description;
         delete locationJsonSchema.properties.parentPath;
         delete locationJsonSchema.properties.parentName;
+        delete locationJsonSchema.properties.information;
     
         //console.log(locationJsonSchema);
         res.json(locationJsonSchema);
