@@ -69,9 +69,9 @@ adminRouter.post('/', async (req, res) => {
     res.status(200).json({ success: true });
 });
 
-adminRouter.get('/logout', (req, res) => {
-    res.clearCookie('token');
-    res.json({ success: true });
-});
+// adminRouter.get('/logout', (req, res) => {
+//     res.clearCookie('token');
+//     res.json({ success: true });
+// });
 
 module.exports = adminRouter;
