@@ -52,7 +52,6 @@ adminRouter.post('/', async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: 'dnd-backend-y1zk.onrender.com',
         maxAge: 60 * 60 * 1000 * 24 // 1 Day
     });
 
@@ -64,9 +63,8 @@ adminRouter.post('/', async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: 'dnd-backend-y1zk.onrender.com',
         maxAge: 60 * 60 * 1000 * 24
-    })
+    });
 
     res.status(200).json({ success: true });
 });
