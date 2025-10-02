@@ -17,6 +17,7 @@ app.use(cors ({
   origin:  'https://dnd-wiki-ten.vercel.app', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json());
