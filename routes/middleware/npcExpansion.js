@@ -84,7 +84,7 @@ async function expandNpcDetail(npcData) {
         }));
     }
 
-    console.log(expanded)
+    //console.log(expanded)
     return expanded;
 }
 

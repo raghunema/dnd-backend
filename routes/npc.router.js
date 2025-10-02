@@ -187,7 +187,7 @@ npcRouter.get('/all', async (req, res) => {
 
 //getting npc by id
 npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
-    console.log(`Getting NPC - new`)
+    console.log(`Getting NPC`)
 
     try {    
         const { fields, expand, reason } = req.query;
