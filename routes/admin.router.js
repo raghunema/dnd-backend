@@ -51,7 +51,7 @@ adminRouter.post('/', async (req, res) => {
     res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.ENV === 'prod',
-        sameSite: 'strict',
+        sameSite: process.env.ENV === 'prod' ? 'none' : 'lax',
         maxAge: 60 * 60 * 1000 * 24 // 1 Day
     });
 
