@@ -14,7 +14,7 @@ const eventRouter = require('./routes/event.router')
 const app = express();
 
 app.use(cors ({
-  origin:  'https://vercel.com/raghunemas-projects/dnd-wiki', // your frontend origin
+  origin:  'https://dnd-wiki-ten.vercel.app/', // your frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true, // if you're using cookies or auth headers
 }));
