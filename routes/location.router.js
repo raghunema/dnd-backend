@@ -76,8 +76,50 @@ locationRouter.post('/update', async (req, res) => {
 
         console.log(err)
         console.log(`Error updating ${req.body.slug}`)
-        res.status(500).send(`Error getting an Location: ${err}`)
+        res.status(500).send(`Error updating a Location: ${err}`)
     }
+})
+
+locationRouter.delete('/delete', async (req, res) => {
+    const session = await mongoose.startSession();
+    await session.startTransaction();
+
+    try {
+
+        const locId = req.body._id
+        const locBody = req.body
+
+        //remove all events in that location
+        await Event.updateMany( 
+            { _id: { $in: locBody.events} },
+            { $unset: { location: locId } },
+            { session }
+        )
+
+        const deleteResponse = await Location.findByIdAndDelete(locId, { session })
+        
+        if (!deleteResponse) {
+            await session.abortTransaction();
+            session.endSession();
+        
+            throw new Error(`Location with id ${locIdId} not deelted`);
+        }
+        
+        await session.commitTransaction();
+        session.endSession(); 
+        
+        console.log(`Deleted: ${locBody.name}`);
+        res.status(200).send(deleteResponse)
+
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.log(err)
+        console.log(`Error delete ${req.body.slug}`)
+        res.status(500).send(`Error deleting a Location: ${err}`)
+    }
+
 })
 
 locationRouter.get('/', async (req, res) => {
