@@ -122,9 +122,24 @@ locationRouter.delete('/delete', async (req, res) => {
 
 })
 
-locationRouter.get('/', async (req, res) => {
+locationRouter.get('/all', async (req, res) => {
+    console.log('getting all locations')
+
     try {
-        const allLocations = await Location.find()
+
+        const {fields, expand} = req.query
+
+        const projection = fields ? fields.split(',').join(' ') : '';
+
+        let query = Location.find({}, projection)
+
+        if (expand) {
+            expand.split(',').forEach(relation => {
+                query = query.populate(relation.trim());
+            });
+        }
+
+        const allLocations = await query;
         res.status(201).send(allLocations)
     } catch (err) {
         console.log(`Error getting all Location`)
@@ -171,18 +186,35 @@ locationRouter.get('/map/:locationSlug', async (req, res) => {
 })
 
 locationRouter.get('/single/:locationId', async (req, res) => {
+    console.log('getting single location')
 
     try {
-        const { fields, expand, reason } = req.query;
+        const { fields, expand } = req.query;
         const projection = fields ? fields.split(',').join(' ') : '';
 
         const locationId = req.params.locationId
-        //console.log(locationId)
+        let query = Location.findById(locationId, projection)
 
-        const location = await Location.findById(locationId, projection)
+        if (expand) {
+            expand.split(",").forEach(ex => {
+                const exFields = ex.split(':') 
+                console.log(exFields)
+
+                if (exFields.length === 1) {
+                    query = query.populate(exFields[0]);
+                } else {
+                    query = query.populate({ 
+                        path: exFields[0],
+                        select: exFields[1].split(';').join(' ')
+                    });
+                }
+            });
+        }
+
+        const location = await query;
 
 
-        res.status(201).send(location)
+        res.status(200).send(location)
     } catch (err) {
         console.log("Error getting location")
         res.status(501).send(`Error getting an location: ${err}`)
