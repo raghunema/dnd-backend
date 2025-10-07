@@ -234,7 +234,9 @@ locationRouter.get('/schema', async (req, res) => {
         delete locationJsonSchema.properties.parentId.description;
         delete locationJsonSchema.properties.parentPath;
         delete locationJsonSchema.properties.parentName;
-        delete locationJsonSchema.properties.information;
+
+        //delete locationJsonSchema.properties.information;
+        locationJsonSchema.properties.information.type = "object";
     
         //console.log(locationJsonSchema);
         res.json(locationJsonSchema);
