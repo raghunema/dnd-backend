@@ -135,6 +135,46 @@ npcRouter.post('/updateNpc/:npcSlug', async (req, res) => {
 })
 
 
+npcRouter.delete('/delete', async (req, res) => {
+    const session = await mongoose.startSession();
+    await session.startTransaction();
+
+    try {
+        const npcId = req.body._id
+        const npcBody = req.body
+
+        //find all events - remove the npc from that event
+        await Event.updateMany(
+            { _id: {$in: npcBody.events } },
+            { $pull: { npcs: npcId } }, 
+            { session }
+        )
+
+        const deleteResponse = await NPC.findByIdAndDelete(npcId, { session })
+
+        if (!deleteResponse) {
+            await session.abortTransaction();
+            session.endSession();
+
+            throw new Error(`NPC with id ${npcId} not found`);
+        }
+
+        await session.commitTransaction();
+        session.endSession(); 
+
+        console.log(`Updated NPC: ${npcBody.name}`);
+        res.status(200).send(deleteResponse)
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.log(`Error Deleteing NPC`)
+        console.log(err)
+        res.status(500).send(`Error with Deletion: ${err}`)
+
+    }
+})
+
 //////////////////////
 /// GET Statements ///
 /////////////////////

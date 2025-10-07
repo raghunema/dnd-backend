@@ -13,8 +13,19 @@ const eventRouter = require('./routes/event.router')
 
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://dnd-wiki-ten.vercel.app'
+]
+
 app.use(cors ({
-  origin:  'https://dnd-wiki-ten.vercel.app', 
+  origin:  (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+    } else {
+        callback(new Error("Origin not allowed by CORS"))
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']

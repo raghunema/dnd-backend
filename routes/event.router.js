@@ -99,12 +99,20 @@ eventRouter.post('/update', async (req, res) => {
             )
         }
 
+        //remove event from old location
+        await Location.findByIdAndUpdate(
+            newEvent.location, 
+            { $pull: {events: eventId } },
+            { session }
+        )
+
         //add event to location
         await Location.findByIdAndUpdate(
             newEvent.location, 
             { $addToSet:  { events: eventId } },
             { session }
         )
+
        
         const event = await Event.findByIdAndUpdate(eventId, newEvent, { new: true, runValidators: true, session })
 
@@ -125,6 +133,55 @@ eventRouter.post('/update', async (req, res) => {
 
 })
 
+eventRouter.delete('/delete', async (req, res) => {
+    console.log("trying to delete event")
+
+    const session = await mongoose.startSession();
+    await session.startTransaction();
+
+    try {
+        const eventId = req.body._id;
+        const eventBody = req.body;
+
+        //remove event from its location
+        await Location.findByIdAndUpdate(
+            eventBody.location, 
+            { $pull: {events: eventId } },
+            { session }
+        )
+
+        //remove event from all of the npcs
+        await NPC.updateMany(
+            { _id: { $in: eventBody.npcs } },
+            { $pull: { events: eventId }},
+            { session }
+        )
+
+        //delete event
+        const deleteResponse = await Event.findByIdAndDelete(eventId, { session });
+
+        if (!deleteResponse) {
+            await session.abortTransaction();
+            session.endSession();
+
+            throw new Error(`Event could not be deleted`);
+        }
+
+        await session.commitTransaction();
+        session.endSession();
+
+        console.log(`Deleted Event`);
+        res.status(200).send(deleteResponse)
+
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error(`Error deleting event:  ${err.message}`)
+        console.log(err.stack)
+    }
+
+})
 
 //////////////////////
 /// GET Statements ///
