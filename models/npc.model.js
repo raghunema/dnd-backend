@@ -17,6 +17,11 @@ const npcSchema = new mongoose.Schema({
     race: String,
     dateOfBirth: Date,
     dateOfDeath: Date,
+    placeOfBirth: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Location",
+        default: null
+    },
     related: {
         type: [{type: mongoose.Schema.Types.ObjectId}],
         default: []
