@@ -74,6 +74,7 @@ npcRouter.post('/update', async (req, res) => {
         const eventsToDeleteFrom = oldNpc.events.filter(
             oldEvent => !npcNewEvents.includes(oldEvent.toString())
         );
+
         //update delete from events
         if (eventsToDeleteFrom.length > 0 ) {
             await Event.updateMany( 
@@ -82,16 +83,16 @@ npcRouter.post('/update', async (req, res) => {
                 { session }
             )
         }
-
+        
         //update add to events - using set so it avoids dupes
         await Event.updateMany( 
-            { _id: { $in: eventsToAddTo} },
+            { _id: { $in: npcNewEvents} },
             { $addToSet: {npcs: npcId } },
             { session }
         )
-        
-        const npc = await NPC.findByIdAndUpdate(npcId, npcBody, { new: true, runValidators: true, session })
 
+        const npc = await NPC.findByIdAndUpdate(npcId, npcBody, { new: true, runValidators: true, session })
+        
         await session.commitTransaction();
         session.endSession();
 
@@ -278,7 +279,8 @@ npcRouter.get('/schema', async (req, res) => {
         delete npcJsonSchema.properties.__v;
         delete npcJsonSchema.properties.createdAt;
         delete npcJsonSchema.properties.updatedAt;
-       
+        delete npcJsonSchema.properties.placeOfBirth.description
+
         npcJsonSchema.properties.information.type = "object";
         //npcJsonSchema.properties.information.additionalProperties = true //save this for the future!
 
