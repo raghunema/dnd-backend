@@ -1,6 +1,8 @@
-const Location = require('../../models/location.model')
+const Location = require('../../models/location.model');
+const NPC = require('../../models/npc.model');
 const Events = require('../../models/event.model');
-
+const Relationship = require('../../models/relationship.model');
+const mongoose = require('mongoose');
 
 ////
 // Bascially this middleware is for to use to get linked information, but have it limited
@@ -41,7 +43,8 @@ async function expandData (npcData, reason) {
         // This is for an npc's own page
         case 'npc_detail':
             return await expandNpcDetail(npcData);
-        
+        case 'form_relationships':
+            return await expandNpcFormRelationships(npcData)
         default:
             return npcData;
     }
@@ -84,8 +87,63 @@ async function expandNpcDetail(npcData) {
         }));
     }
 
-    //console.log(expanded)
+    ///get the npcs that this person is related to
+    if (expanded.relationships && expanded.relationships.length > 0) {
+
+        const npcIds = new Set()
+        
+        for (const relation of expanded.relationships) {
+            npcIds.add(relation.relationshipId.npcA)
+            npcIds.add(relation.relationshipId.npcB)
+        }
+
+        const npcIdsArray = [...npcIds]
+
+        const npcNames = await NPC.find(
+            { _id: { $in: npcIdsArray } },
+            'name'
+        )
+        console.log('names of npcs: ')
+        console.log(npcNames)
+
+        const npcNameMap = new Map();
+        npcNames.forEach(npc => {
+            npcNameMap.set(npc._id.toString(), npc)
+        })
+
+        expanded.relationships = expanded.relationships.map(relation => ({
+            ...relation,
+            npcAName: npcNameMap.get(relation.relationshipId.npcA.toString()).name || null,
+            npcBName: npcNameMap.get(relation.relationshipId.npcB.toString()).name || null 
+        }))
+    }
+
+    console.log(expanded.relationships)
     return expanded;
 }
+
+async function expandNpcFormRelationships(npcData) {
+    const data = JSON.parse(JSON.stringify(npcData));
+
+    console.log(data.relationships)
+
+    const relantionshipIds = data.relationships.map(rel => {
+        // Convert to string first, then back to ObjectId to ensure consistency
+        const idString = rel._id.toString();
+        return new mongoose.Types.ObjectId(idString);
+    })
+
+    console.log(relantionshipIds)
+
+    const relationships = await Relationship.find({
+        _id: { $in: relantionshipIds }
+    })
+
+    if (relationships) console.log(relationships)
+
+    return relationships
+
+}
+
 
 module.exports = expansionMiddleware;

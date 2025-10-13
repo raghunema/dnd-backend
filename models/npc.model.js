@@ -22,9 +22,21 @@ const npcSchema = new mongoose.Schema({
         ref: "Location",
         default: null
     },
-    related: {
-        type: [{type: mongoose.Schema.Types.ObjectId}],
-        default: []
+    relationships: {
+        type: [{
+            relationshipId: {  
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Relationship",
+                required: true
+            },
+            relationshipIndex: {
+                type: String,
+                enum: ["npcA", "npcB"],
+                required: true
+            }
+        }],
+        default: [],
+        _id: false
     },
     information: {
         type: mongoose.Schema.Types.Mixed,

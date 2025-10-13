@@ -7,7 +7,9 @@ const npcRouter = express.Router();
 const NPC = require('../models/npc.model');
 const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
+const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
+const { createRelationship } = require("./middleware/relationship")
 
 //npcRouter.use(expansionMiddleware)
 
@@ -176,6 +178,26 @@ npcRouter.delete('/delete', async (req, res) => {
     }
 })
 
+npcRouter.post('/relationship', async (req, res) => {
+    console.log('creating new relationship')
+
+    try {
+        const newRel = await createRelationship({
+            npcX: req.body.npcA,
+            relXtoY: req.body.relAtoB,
+            npcY: req.body.npcB,
+            relYtoX: req.body.relBtoA,
+            description: req.body.description,
+            strength: req.body.strength
+        })
+
+        res.status(201).json(newRel)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({error: err.message})
+    }
+})
+
 //////////////////////
 /// GET Statements ///
 /////////////////////
@@ -210,29 +232,13 @@ npcRouter.get('/all', async (req, res) => {
     }
 })
 
-//get all npcs but just for the form
-// npcRouter.get('/form', async (req, res) => {
-//     console.log("Getting all Npcs")
-    
-//     try {
-//         const allNpcs = await NPC.find(
-//             {},
-//             "name slug"
-//         )
-//         res.status(201).send(allNpcs)
-//     } catch (err) {
-//         console.log(`Error getting all Npcs`)
-//         res.status(500).send(`Error saving location: ${err.message}`)
-//     }
-// })
-
 //getting npc by id
 npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
     console.log(`Getting NPC`)
 
     try {    
         const { fields, expand, reason } = req.query;
-
+0
         const projection = fields ? fields.split(',').join(' ') : '';
 
         let query = NPC.findById(req.params.npcId, projection)
@@ -244,7 +250,7 @@ npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
         if (expand) {
             expand.split(",").forEach(ex => {
                 const exFields = ex.split(':')
-                //console.log(exFields)
+                console.log(exFields)
 
                 query = query.populate({ 
                     path: exFields[0],
@@ -290,6 +296,35 @@ npcRouter.get('/schema', async (req, res) => {
     } catch (err) {
         res.status(500).send(err)
     }
+})
+
+npcRouter.get('/relationships', async (req, res) => {
+    try {
+        // await the query so we return the actual documents (not a Query object)
+        const relationships = await Relationship.find().lean();
+        res.status(200).json(relationships);
+    } catch (err) {
+        console.error('Error fetching relationships:', err);
+        res.status(500).json({ error: err.message });
+    }
+})
+
+npcRouter.get('/relationship/:npcId', async (req, res) => {
+
+    let query = NPC.findById(req.params.npcId)
+
+
+    query.populate({
+        path: "relationships.relationshipId"
+    })
+
+    const npc = await query;
+
+    // const npc = await NPC.findById(req.params.npcId).lean();
+
+    // console.log(JSON.stringify(npc.relationships, null, 2))
+
+    res.status(200).json(npc)
 })
 
 module.exports = npcRouter;
