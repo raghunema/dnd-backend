@@ -17,7 +17,7 @@ const expansionMiddleware = async (req, res, next) => {
         return next();
     }
 
-    console.log('in here')
+    console.log('in expansion middleware')
     const originalJson = res.json.bind(res);
 
     //this basically overrides the res.json() function in the endpint
@@ -123,25 +123,14 @@ async function expandNpcDetail(npcData) {
 }
 
 async function expandNpcFormRelationships(npcData) {
-    const data = JSON.parse(JSON.stringify(npcData));
+    //this function is to massage the data that goes into the npc form
+    
+    const relationships = []
+    
+    for (const relation in npcRelationships) {
+        const currRelationship = null
 
-    console.log(data.relationships)
-
-    const relantionshipIds = data.relationships.map(rel => {
-        // Convert to string first, then back to ObjectId to ensure consistency
-        const idString = rel._id.toString();
-        return new mongoose.Types.ObjectId(idString);
-    })
-
-    console.log(relantionshipIds)
-
-    const relationships = await Relationship.find({
-        _id: { $in: relantionshipIds }
-    })
-
-    if (relationships) console.log(relationships)
-
-    return relationships
+    }
 
 }
 

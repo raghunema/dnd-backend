@@ -25,6 +25,17 @@ async function createRelationship ({
             ? [npcX, relXtoY, npcY, relYtoX]
             : [npcY, relYtoX, npcX, relXtoY]
 
+        
+        const relationAlreadyExists = await Relationship.find({
+            npcA: npcA,
+            npcB: npcB
+        })
+
+        if (relationAlreadyExists) {
+            //don't want to error out immediately but also don't want to make anything crazy happen
+            return null;
+        }
+
         const newRelationship = await Relationship.create([{
             npcA: npcA, 
             relAtoB: relAtoB,
