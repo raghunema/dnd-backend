@@ -62,6 +62,7 @@ npcRouter.post('/update', async (req, res) => {
         const npcId = req.body._id
         const npcBody = req.body
         const npcNewEvents = req.body.events || []
+        const npcNewRelationships = req.body.relationships || []
 
         const oldNpc = await NPC.findById(npcId).session(session)
         
@@ -91,6 +92,24 @@ npcRouter.post('/update', async (req, res) => {
             { _id: { $in: npcNewEvents} },
             { $addToSet: {npcs: npcId } },
             { session }
+        )
+        
+        //upsert relationships
+        await Promise.all(
+            npcNewRelationships.map(async (relation) => {
+                const updatedRelation = await createRelationship ({
+                    npcX: relation.relationshipId.npcA,
+                    relXtoY: relation.relationshipId.relAtoB,
+                    npcY: relation.relationshipId.npcB,
+                    relYtoX: relation.relationshipId.relBtoA,
+                    description: relation.relationshipId.description,
+                    strength: relation.relationshipId.strength
+                });
+
+                if (!updatedRelation) throw new Error ('error updating a relationship')                  
+                    
+                return updatedRelation
+            })
         )
 
         const npc = await NPC.findByIdAndUpdate(npcId, npcBody, { new: true, runValidators: true, session })
@@ -288,6 +307,8 @@ npcRouter.get('/schema', async (req, res) => {
         delete npcJsonSchema.properties.placeOfBirth.description
 
         npcJsonSchema.properties.information.type = "object";
+        npcJsonSchema.properties.relationships.items.properties.relationshipId.type = "object";
+        npcJsonSchema.properties.relationships.items.required = ["relationshipId"]
         //npcJsonSchema.properties.information.additionalProperties = true //save this for the future!
 
         //console.log(npcJsonSchema);
@@ -301,7 +322,7 @@ npcRouter.get('/schema', async (req, res) => {
 npcRouter.get('/relationships', async (req, res) => {
     try {
         // await the query so we return the actual documents (not a Query object)
-        const relationships = await Relationship.find().lean();
+        const relationships = await Relationship.find().populate('npcA npcB').lean();
         res.status(200).json(relationships);
     } catch (err) {
         console.error('Error fetching relationships:', err);

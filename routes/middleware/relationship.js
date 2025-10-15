@@ -8,7 +8,7 @@ async function createRelationship ({
     npcY,
     relYtoX,
     description,
-    strength
+    strength = 0
 }) {
     console.log("Creating an relationship")
     const session = await mongoose.startSession();
@@ -25,38 +25,45 @@ async function createRelationship ({
             ? [npcX, relXtoY, npcY, relYtoX]
             : [npcY, relYtoX, npcX, relXtoY]
 
-        
-        const relationAlreadyExists = await Relationship.find({
-            npcA: npcA,
-            npcB: npcB
-        })
+    
+        //Maybe we want to upsert relationships
 
-        if (relationAlreadyExists) {
-            //don't want to error out immediately but also don't want to make anything crazy happen
-            return null;
-        }
+        // const newRelationship = await Relationship.create([{
+        //     npcA: npcA, 
+        //     relAtoB: relAtoB,
+        //     npcB: npcB, 
+        //     relBtoA: relBtoA,
+        //     description: description,
+        //     strength: strength
+        // }], { session }) 
 
-        const newRelationship = await Relationship.create([{
-            npcA: npcA, 
-            relAtoB: relAtoB,
-            npcB: npcB, 
-            relBtoA: relBtoA,
-            description: description,
-            strength: strength
-        }], { session }) 
+        const relationship = await Relationship.findOneAndUpdate (
+            { npcA: npcA, npcB: npcB},
+            {
+                npcA: npcA, 
+                relAtoB: relAtoB,
+                npcB: npcB, 
+                relBtoA: relBtoA,
+                description: description,
+                strength: strength
+            },
+            {   session, 
+                new: true,
+                upsert: true,
+                setDefaultOnInsert: true
+            }
+        )
 
-        if (!newRelationship) {
+        if (!relationship) {
             throw new Error("Error creating new relationship")
         }
-
-        const relationshipDoc = newRelationship[0];
 
         const newNpcA = await NPC.findByIdAndUpdate(
            npcA,
            {
-            $push: {
+            $addToSet: {
                 relationships: {
-                    relationshipId: relationshipDoc._id,
+                    relationshipId: relationship._id,
                     relationshipIndex: "npcA"
                 }
             }
@@ -73,9 +80,9 @@ async function createRelationship ({
         const newNpcB = await NPC.findByIdAndUpdate(
            npcB,
            {
-            $push: {
+            $addToSet: {
                 relationships: {
-                    relationshipId: relationshipDoc._id,
+                    relationshipId: relationship._id,
                     relationshipIndex: "npcB"
                 }
             }
@@ -90,17 +97,17 @@ async function createRelationship ({
         }
 
         await session.commitTransaction();
-        session.endSession();
 
         console.log("created new relationship")
-        return newRelationship;
+        return relationship;
+
     } catch (err) {
         await session.abortTransaction();
-        session.endSession();
 
         console.log("Error creating a relationship")
         console.log(err)
         throw err // is this correct??
+
     } finally {
         session.endSession();
     }
