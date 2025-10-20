@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Relationship = require('../../models/relationship.model');
 const NPC = require('../../models/npc.model');
+const { findByIdAndUpdate } = require('../../models/npcTimelineEvent.model');
 
 async function createRelationship ({
     npcX, 
@@ -102,8 +103,58 @@ async function createRelationship ({
     } 
 }
 
+async function deleteRelationship(
+    relationshipId,
+    session
+) {
+    console.log('deleting relationship')
+
+    try {
+
+        const oldRelationship = await Relationship.findById(relationshipId).session(session);
+
+        if (!oldRelationship) {
+            throw new Error("relationship to delete not found")
+        }
+
+        //remove relationship from npcA 
+        const npcA = await NPC.findByIdAndUpdate(
+            oldRelationship.npcA,
+            {
+                $pull: {
+                    relationships: {
+                        relationshipId: relationshipId
+                    }
+                }
+            },
+            { session }
+        )
+
+        //remove relationship from npcB 
+        const npcB = await NPC.findByIdAndUpdate(
+            oldRelationship.npcB,
+            {
+                $pull: {
+                    relationships: {
+                        relationshipId: relationshipId
+                    }
+                }
+            },
+            { session }
+        )
+
+        const deletedRel = await Relationship.findByIdAndDelete(relationshipId, { session })
+
+        return deletedRel
+    } catch (err) {
+        console.log("Error deleting a relationship")
+        console.log(err)
+        throw err 
+    }
+}
+
 // async function getRelationships ({relationshipIds, relationshipIndexes}) {
 
 // }
 
-module.exports = { createRelationship }
+module.exports = { createRelationship, deleteRelationship }

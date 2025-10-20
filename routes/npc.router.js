@@ -9,7 +9,7 @@ const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
 const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
-const { createRelationship } = require("./middleware/relationship");
+const { createRelationship, deleteRelationship } = require("./middleware/relationship");
 const relationshipModel = require('../models/relationship.model');
 
 //npcRouter.use(expansionMiddleware)
@@ -108,6 +108,25 @@ npcRouter.post('/update', async (req, res) => {
                 }, session);
 
             if (!updatedRelation) throw new Error("error updating a relationship")
+        }
+
+        //delete relationships
+        const relsToDelete = oldNpc.relationships
+            .filter(oldRel => 
+                !npcNewRelationships.some(newRel => 
+                    newRel.relationshipId._id.toString() === oldRel.relationshipId.toString()
+                )
+            )
+            .map(rel => rel.relationshipId)
+        
+        console.log("relations to delete:")
+        console.log(relsToDelete)
+        for (const relation of relsToDelete) {
+            const deletedRelation = await deleteRelationship(
+                relation,
+                session
+            )
+            if (!deletedRelation) throw new Error("error deleting a relationship")
         }
 
         const {relationships, ...npcUpdatedData} = npcBody //remove the relationship information since it is in the wrong format - handled in the create relaitonships
@@ -324,7 +343,8 @@ npcRouter.get('/schema', async (req, res) => {
 npcRouter.get('/relationships', async (req, res) => {
     try {
         // await the query so we return the actual documents (not a Query object)
-        const relationships = await Relationship.find().populate('npcA npcB').lean();
+        //const relationships = await Relationship.find().populate('npcA npcB').lean();
+        const relationships = await Relationship.find().lean();
         res.status(200).json(relationships);
     } catch (err) {
         console.error('Error fetching relationships:', err);
