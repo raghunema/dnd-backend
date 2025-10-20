@@ -9,10 +9,14 @@ async function createRelationship ({
     relYtoX,
     description,
     strength = 0
-}) {
+},
+    session
+) {
     console.log("Creating an relationship")
-    const session = await mongoose.startSession();
-    await session.startTransaction();
+    // const session = await mongoose.startSession();
+    // await session.startTransaction();
+
+    if (!session) throw new Error("No session provided")
 
     try {
         //validate that npcA and B are the same
@@ -27,16 +31,7 @@ async function createRelationship ({
 
     
         //Maybe we want to upsert relationships
-
-        // const newRelationship = await Relationship.create([{
-        //     npcA: npcA, 
-        //     relAtoB: relAtoB,
-        //     npcB: npcB, 
-        //     relBtoA: relBtoA,
-        //     description: description,
-        //     strength: strength
-        // }], { session }) 
-
+        const intStrength = parseInt(strength)
         const relationship = await Relationship.findOneAndUpdate (
             { npcA: npcA, npcB: npcB},
             {
@@ -45,7 +40,7 @@ async function createRelationship ({
                 npcB: npcB, 
                 relBtoA: relBtoA,
                 description: description,
-                strength: strength
+                strength: intStrength
             },
             {   session, 
                 new: true,
@@ -53,6 +48,8 @@ async function createRelationship ({
                 setDefaultOnInsert: true
             }
         )
+
+        //console.log(relationship)
 
         if (!relationship) {
             throw new Error("Error creating new relationship")
@@ -71,7 +68,7 @@ async function createRelationship ({
            { session, new: true} 
         )
 
-        console.log(newNpcA)
+        //console.log(newNpcA)
 
         if (!newNpcA) {
             throw new Error("Error updating npc A")
@@ -90,31 +87,23 @@ async function createRelationship ({
            { session, new: true} 
         )
 
-        console.log(newNpcB)
+        //console.log(newNpcB)
 
         if (!newNpcB) {
             throw new Error("Error updating npc B")
         }
 
-        await session.commitTransaction();
-
         console.log("created new relationship")
         return relationship;
-
     } catch (err) {
-        await session.abortTransaction();
-
         console.log("Error creating a relationship")
         console.log(err)
-        throw err // is this correct??
-
-    } finally {
-        session.endSession();
-    }
+        throw err 
+    } 
 }
 
-async function getRelationships ({relationshipIds, relationshipIndexes}) {
+// async function getRelationships ({relationshipIds, relationshipIndexes}) {
 
-}
+// }
 
 module.exports = { createRelationship }

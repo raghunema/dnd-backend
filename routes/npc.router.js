@@ -9,7 +9,8 @@ const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
 const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
-const { createRelationship } = require("./middleware/relationship")
+const { createRelationship } = require("./middleware/relationship");
+const relationshipModel = require('../models/relationship.model');
 
 //npcRouter.use(expansionMiddleware)
 
@@ -95,24 +96,22 @@ npcRouter.post('/update', async (req, res) => {
         )
         
         //upsert relationships
-        await Promise.all(
-            npcNewRelationships.map(async (relation) => {
-                const updatedRelation = await createRelationship ({
+        for (const relation of npcNewRelationships) {
+            const updatedRelation = await createRelationship (
+                {
                     npcX: relation.relationshipId.npcA,
                     relXtoY: relation.relationshipId.relAtoB,
                     npcY: relation.relationshipId.npcB,
                     relYtoX: relation.relationshipId.relBtoA,
                     description: relation.relationshipId.description,
                     strength: relation.relationshipId.strength
-                });
+                }, session);
 
-                if (!updatedRelation) throw new Error ('error updating a relationship')                  
-                    
-                return updatedRelation
-            })
-        )
+            if (!updatedRelation) throw new Error("error updating a relationship")
+        }
 
-        const npc = await NPC.findByIdAndUpdate(npcId, npcBody, { new: true, runValidators: true, session })
+        const {relationships, ...npcUpdatedData} = npcBody //remove the relationship information since it is in the wrong format - handled in the create relaitonships
+        const npc = await NPC.findByIdAndUpdate(npcId, npcUpdatedData, { new: true, runValidators: true, session })
         
         await session.commitTransaction();
         session.endSession();
@@ -123,8 +122,11 @@ npcRouter.post('/update', async (req, res) => {
         await session.abortTransaction();
         session.endSession();
 
+        console.log(err)
         console.log(`Error updating ${req.body.slug}`)
         res.status(500).send(`Error getting an NPC: ${err}`)
+    } finally {
+        session.endSession();
     }
 
 })
