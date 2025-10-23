@@ -175,7 +175,7 @@ locationRouter.get('/map/:locationSlug', async (req, res) => {
         response.info = location
         //response.locationInfo.description = location.description
 
-        console.log(response)
+        //console.log(response)
         console.log(`location found successfully`)
 
         res.status(201).send(response)

@@ -39,18 +39,17 @@ npcRouter.post('/new', async (req, res) => {
             )
         }
 
-        session.commitTransaction();
-        session.endSession();
-    
+        await session.commitTransaction();
         console.log(`NPC saved successfully`)
         res.status(201).send(npc)
     } catch (err) {
-        session.abortTransaction();
-        session.endSession();
+        await session.abortTransaction();
 
-        console.log(`Error saving location`)
+        console.log(`Error saving npc`)
         console.log(err.stack)
-        res.status(500).send(`Error saving location: ${err.message}`)
+        res.status(500).send(`Error saving npc: ${err.message}`)
+    } finally {
+        await session.endSession()
     }
 })
 
@@ -60,7 +59,7 @@ npcRouter.post('/update', async (req, res) => {
     await session.startTransaction();
 
     try {
-        const npcId = req.body._id
+        const npcId = req.body._id 
         const npcBody = req.body
         const npcNewEvents = req.body.events || []
         const npcNewRelationships = req.body.relationships || []
