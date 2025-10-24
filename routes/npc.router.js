@@ -2,13 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose'); 
 require('mongoose-schema-jsonschema')(mongoose);
 
-
 const npcRouter = express.Router();
 const NPC = require('../models/npc.model');
 const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
 const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
+const { validateAuth } = require("./middleware/authentication");
 const { createRelationship, deleteRelationship } = require("./middleware/relationship");
 const relationshipModel = require('../models/relationship.model');
 
@@ -54,7 +54,7 @@ npcRouter.post('/new', async (req, res) => {
 })
 
 //update via id
-npcRouter.post('/update', async (req, res) => {
+npcRouter.post('/update', validateAuth, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
