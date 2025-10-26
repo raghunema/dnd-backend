@@ -46,29 +46,46 @@ adminRouter.post('/', async (req, res) => {
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign(
+        { 
+            id: user._id,  
+            name: user.name,
+            username: user.username,
+            privileges: user.privileges
+        }, 
+        JWT_SECRET, 
+        { expiresIn: '24h' }
+    );
 
-    res.cookie('token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 60 * 60 * 1000 * 24 // 1 Day
+    // res.cookie('token', token, {
+    //     httpOnly: true,
+    //     secure: process.env.NODE_ENV === 'production',
+    //     sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'none',
+    //     maxAge: 60 * 60 * 1000 * 24 // 1 Day
+    // });
+
+    // res.cookie('userInfo', JSON.stringify({
+    //     "user": user.username,
+    //     "userDisplayName": user.name,
+    //     "privileges": user.privileges
+    // }), {
+    //     httpOnly: false,
+    //     secure: true,
+    //     sameSite: 'none',
+    //     maxAge: 60 * 60 * 1000 * 24
+    // });
+
+    res.status(200).json({
+        token, 
+        user: {
+            username: user.username,
+            privileges: user.privileges
+        },
+        success: true 
     });
-
-    res.cookie('userInfo', JSON.stringify({
-        "user": user.username,
-        "userDisplayName": user.name,
-        "privileges": user.privileges
-    }), {
-        httpOnly: false,
-        secure: true,
-        sameSite: 'none',
-        maxAge: 60 * 60 * 1000 * 24
-    });
-
-    res.status(200).json({ success: true });
 });
 
+//don't actually need this in the backend
 // adminRouter.get('/logout', (req, res) => {
 //     res.clearCookie('token');
 //     res.json({ success: true });

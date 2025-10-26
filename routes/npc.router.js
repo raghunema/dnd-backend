@@ -8,7 +8,7 @@ const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
 const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
-const { validateAuth } = require("./middleware/authentication");
+const { validateAuth, checkPrivileges } = require("./middleware/authentication");
 const { createRelationship, deleteRelationship } = require("./middleware/relationship");
 const relationshipModel = require('../models/relationship.model');
 
@@ -19,7 +19,7 @@ const relationshipModel = require('../models/relationship.model');
 ///////////////////////
 
 //make a new npc
-npcRouter.post('/new', async (req, res) => {
+npcRouter.post('/new', validateAuth, checkPrivileges, async (req, res) => {
     console.log("Trying to save new npc")
 
     const session = await mongoose.startSession();
@@ -54,7 +54,7 @@ npcRouter.post('/new', async (req, res) => {
 })
 
 //update via id
-npcRouter.post('/update', validateAuth, async (req, res) => {
+npcRouter.post('/update', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
@@ -177,7 +177,7 @@ npcRouter.post('/updateNpc/:npcSlug', async (req, res) => {
 })
 
 
-npcRouter.delete('/delete', async (req, res) => {
+npcRouter.delete('/delete', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
@@ -312,7 +312,6 @@ npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
     }
 
 })
-
 
 npcRouter.get('/schema', async (req, res) => {
     console.log('trying to get schema')

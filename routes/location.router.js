@@ -1,12 +1,15 @@
 const express = require('express');
+
 const Location = require('../models/location.model');
 const Event = require('../models/event.model');
+const { validateAuth, checkPrivileges } = require("./middleware/authentication");
+
 const mongoose = require('mongoose'); 
 require('mongoose-schema-jsonschema')(mongoose);
 
 const locationRouter = express.Router();
 
-locationRouter.post('/new', async (req, res) => {
+locationRouter.post('/new', validateAuth, checkPrivileges, async (req, res) => {
     console.log("Trying to save new location")
 
     try {
@@ -22,7 +25,7 @@ locationRouter.post('/new', async (req, res) => {
     }
 });
 
-locationRouter.post('/update', async (req, res) => {
+locationRouter.post('/update', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
@@ -80,7 +83,7 @@ locationRouter.post('/update', async (req, res) => {
     }
 })
 
-locationRouter.delete('/delete', async (req, res) => {
+locationRouter.delete('/delete', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 

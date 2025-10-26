@@ -1,7 +1,10 @@
 const express = require('express');
+
 const Event = require('../models/event.model');
 const Location = require('../models/location.model');
 const NPC = require('../models/npc.model');
+const { validateAuth, checkPrivileges } = require("./middleware/authentication");
+
 const mongoose = require("mongoose");
 require('mongoose-schema-jsonschema')(mongoose);
 
@@ -13,7 +16,7 @@ const eventRouter = express.Router();
 ///////////////////////
 
 //new event
-eventRouter.post('/new', async (req, res) => {
+eventRouter.post('/new', validateAuth, checkPrivileges, async (req, res) => {
     console.log("Trying to save new event");
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -54,7 +57,7 @@ eventRouter.post('/new', async (req, res) => {
 });
 
 //update an event
-eventRouter.post('/update', async (req, res) => {
+eventRouter.post('/update', validateAuth, checkPrivileges, async (req, res) => {
     console.log("trying to update event")
 
     const session = await mongoose.startSession();
@@ -133,7 +136,7 @@ eventRouter.post('/update', async (req, res) => {
 
 })
 
-eventRouter.delete('/delete', async (req, res) => {
+eventRouter.delete('/delete', validateAuth, checkPrivileges, async (req, res) => {
     console.log("trying to delete event")
 
     const session = await mongoose.startSession();
