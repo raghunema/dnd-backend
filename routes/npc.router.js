@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose'); 
 require('mongoose-schema-jsonschema')(mongoose);
+const redisClient = require('../redisUtils')
 
 const npcRouter = express.Router();
 const NPC = require('../models/npc.model');
@@ -8,7 +9,7 @@ const Event = require('../models/event.model')
 const npcEvents = require("../models/npcTimelineEvent.model");
 const Relationship = require('../models/relationship.model');
 const expansionMiddleware = require("./middleware/npcExpansion")
-const { validateAuth } = require("./middleware/authentication");
+const { validateAuth, checkPrivileges } = require("./middleware/authentication");
 const { createRelationship, deleteRelationship } = require("./middleware/relationship");
 const relationshipModel = require('../models/relationship.model');
 
@@ -19,7 +20,7 @@ const relationshipModel = require('../models/relationship.model');
 ///////////////////////
 
 //make a new npc
-npcRouter.post('/new', async (req, res) => {
+npcRouter.post('/new', validateAuth, checkPrivileges, async (req, res) => {
     console.log("Trying to save new npc")
 
     const session = await mongoose.startSession();
@@ -54,7 +55,7 @@ npcRouter.post('/new', async (req, res) => {
 })
 
 //update via id
-npcRouter.post('/update', validateAuth, async (req, res) => {
+npcRouter.post('/update', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
@@ -177,7 +178,7 @@ npcRouter.post('/updateNpc/:npcSlug', async (req, res) => {
 })
 
 
-npcRouter.delete('/delete', async (req, res) => {
+npcRouter.delete('/delete', validateAuth, checkPrivileges, async (req, res) => {
     const session = await mongoose.startSession();
     await session.startTransaction();
 
@@ -248,10 +249,17 @@ npcRouter.get('/all', async (req, res) => {
     console.log("Getting all Npcs")
     
     try {
-
         const { fields, expand } = req.query;
         //console.log(fields)
         //console.log(expand)
+
+        //check in redis first?
+        const cachedData = await redisClient.get('allNpcs')
+        if (cachedData) {
+            console.log('hit redis cache!')
+            return res.status(200).send(JSON.parse(cachedData))
+        }
+
         const projection = fields ? fields.split(',').join(' ') : '';
 
         let query = NPC.find({}, projection)
@@ -263,7 +271,11 @@ npcRouter.get('/all', async (req, res) => {
         }
 
         const allNpcs = await query;
-        res.status(201).send(allNpcs)
+        //save this to redis
+        console.log('saving to redis cache')
+        await redisClient.setEX('allNpcs', 120, JSON.stringify(allNpcs));
+
+        res.status(200).send(allNpcs)
     } catch (err) {
         console.log(`Error getting all Npcs`);
         console.log(err.stack);
@@ -312,7 +324,6 @@ npcRouter.get('/single/:npcId', expansionMiddleware, async (req, res) => {
     }
 
 })
-
 
 npcRouter.get('/schema', async (req, res) => {
     console.log('trying to get schema')

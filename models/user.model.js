@@ -16,6 +16,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: false
+    },
+    magicToken: {
+        type: String,
+        required: false
+    },
+    magicTokenExpiry: {
+        type: Date, 
+        require: false
+    },
     privileges: {
         type: String,
         required: true
