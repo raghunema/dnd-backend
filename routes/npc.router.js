@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose'); 
 require('mongoose-schema-jsonschema')(mongoose);
+const redisClient = require('../redisUtils')
 
 const npcRouter = express.Router();
 const NPC = require('../models/npc.model');
@@ -248,10 +249,17 @@ npcRouter.get('/all', async (req, res) => {
     console.log("Getting all Npcs")
     
     try {
-
         const { fields, expand } = req.query;
         //console.log(fields)
         //console.log(expand)
+
+        //check in redis first?
+        const cachedData = await redisClient.get('allNpcs')
+        if (cachedData) {
+            console.log('hit redis cache!')
+            return res.status(200).send(JSON.parse(cachedData))
+        }
+
         const projection = fields ? fields.split(',').join(' ') : '';
 
         let query = NPC.find({}, projection)
@@ -263,7 +271,11 @@ npcRouter.get('/all', async (req, res) => {
         }
 
         const allNpcs = await query;
-        res.status(201).send(allNpcs)
+        //save this to redis
+        console.log('saving to redis cache')
+        await redisClient.setEX('allNpcs', 120, JSON.stringify(allNpcs));
+
+        res.status(200).send(allNpcs)
     } catch (err) {
         console.log(`Error getting all Npcs`);
         console.log(err.stack);
